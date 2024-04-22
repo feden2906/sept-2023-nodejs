@@ -2,42 +2,14 @@ import express, { NextFunction, Request, Response } from "express";
 
 import { ApiError } from "./api-error";
 import { reader, writer } from "./fs.service";
-import { IUser } from "./user.interface";
+import { userRouter } from "./routers/user.router";
 
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get("/users", async (req: Request, res: Response) => {
-  try {
-    const users = await reader();
-    res.json(users);
-  } catch (e) {
-    res.status(400).json(e.message);
-  }
-});
-
-app.post("/users", async (req: Request, res: Response) => {
-  try {
-    const { name, email, password } = req.body;
-
-    const users = await reader();
-
-    const newUser: IUser = {
-      id: users[users.length - 1].id + 1,
-      name,
-      email,
-      password,
-    };
-    users.push(newUser);
-    await writer(users);
-    res.status(201).json(newUser);
-  } catch (e) {
-    res.status(400).json(e.message);
-  }
-});
-
+app.use("/users", userRouter);
 app.get(
   "/users/:userId",
   async (req: Request, res: Response, next: NextFunction) => {
