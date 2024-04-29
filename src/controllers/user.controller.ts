@@ -13,16 +13,6 @@ class UserController {
     }
   }
 
-  public async create(req: Request, res: Response, next: NextFunction) {
-    try {
-      const dto = req.body as Partial<IUser>;
-      const newUser = await userService.create(dto);
-      res.status(201).json(newUser);
-    } catch (e) {
-      next(e);
-    }
-  }
-
   public async getById(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.params.userId;
