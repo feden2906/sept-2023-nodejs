@@ -18,7 +18,6 @@ module.exports = {
   },
   plugins: ["@typescript-eslint/eslint-plugin", "simple-import-sort", "import"],
   rules: {
-    indent: ["error", 2],
     quotes: ["error", "double"],
     semi: ["error", "always"],
     "@typescript-eslint/interface-name-prefix": "off",
