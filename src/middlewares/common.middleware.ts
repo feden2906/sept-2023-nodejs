@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { ObjectSchema } from "joi";
 import { isObjectIdOrHexString } from "mongoose";
 
+import { statusCodes } from "../constants/status-codes.constant";
 import { ApiError } from "../errors/api-error";
 
 class CommonMiddleware {
@@ -9,7 +10,7 @@ class CommonMiddleware {
     try {
       const id = req.params.userId;
       if (!isObjectIdOrHexString(id)) {
-        throw new ApiError("Invalid id", 400);
+        throw new ApiError("Invalid id", statusCodes.BAD_REQUEST);
       }
       next();
     } catch (e) {

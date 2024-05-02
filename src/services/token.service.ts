@@ -1,6 +1,7 @@
 import * as jsonwebtoken from "jsonwebtoken";
 
 import { config } from "../configs/config";
+import { statusCodes } from "../constants/status-codes.constant";
 import { TokenTypeEnum } from "../enums/token-type.enum";
 import { ApiError } from "../errors/api-error";
 import { IJWTPayload } from "../interfaces/jwt-payload.interface";
@@ -37,12 +38,12 @@ class TokenService {
           break;
 
         default:
-          throw new ApiError("Invalid token type", 401);
+          throw new ApiError("Invalid token type", statusCodes.UNAUTHORIZED);
       }
 
       return jsonwebtoken.verify(token, secret) as IJWTPayload;
     } catch (error) {
-      throw new ApiError("Token is not valid", 401);
+      throw new ApiError("Token is not valid", statusCodes.UNAUTHORIZED);
     }
   }
 }
