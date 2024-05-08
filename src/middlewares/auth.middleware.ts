@@ -62,32 +62,27 @@ class AuthMiddleware {
     }
   }
 
-  public async checkActionToken(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) {
-    try {
-      const actionToken = req.query.token as string;
-      if (!actionToken) {
-        throw new ApiError("No token provided", statusCodes.BAD_REQUEST);
-      }
-      const payload = tokenService.checkActionToken(
-        actionToken,
-        ActionTokenTypeEnum.FORGOT,
-      );
+  public checkActionToken(type: ActionTokenTypeEnum, key = "token") {
+    return async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const actionToken = req.query[key] as string;
+        if (!actionToken) {
+          throw new ApiError("No token provided", statusCodes.BAD_REQUEST);
+        }
+        const payload = tokenService.checkActionToken(actionToken, type);
 
-      const entity = await actionTokenRepository.findByParams({
-        actionToken,
-      });
-      if (!entity) {
-        throw new ApiError("Invalid token", statusCodes.UNAUTHORIZED);
+        const entity = await actionTokenRepository.findByParams({
+          actionToken,
+        });
+        if (!entity) {
+          throw new ApiError("Invalid token", statusCodes.UNAUTHORIZED);
+        }
+        req.res.locals.jwtPayload = payload;
+        next();
+      } catch (e) {
+        next(e);
       }
-      req.res.locals.jwtPayload = payload;
-      next();
-    } catch (e) {
-      next(e);
-    }
+    };
   }
 }
 

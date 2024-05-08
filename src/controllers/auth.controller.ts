@@ -1,10 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 
+import { statusCodes } from "../constants/status-codes.constant";
 import { IForgot, ISetForgot } from "../interfaces/action-token.interface";
 import { IJWTPayload } from "../interfaces/jwt-payload.interface";
 import { IToken } from "../interfaces/token.interface";
 import { IUser } from "../interfaces/user.interface";
 import { AuthPresenter } from "../presenters/auth.presenter";
+import { UserPresenter } from "../presenters/user.presenter";
 import { authService } from "../services/auth.service";
 
 class AuthController {
@@ -62,6 +64,19 @@ class AuthController {
 
       await authService.setForgotPassword(body, jwtPayload);
       res.sendStatus(204);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  public async verify(req: Request, res: Response, next: NextFunction) {
+    try {
+      const jwtPayload = req.res.locals.jwtPayload as IJWTPayload;
+
+      const user = await authService.verify(jwtPayload);
+      const response = UserPresenter.toPrivateResponseDto(user);
+
+      res.status(statusCodes.CREATED).json(response);
     } catch (e) {
       next(e);
     }

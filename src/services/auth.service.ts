@@ -36,12 +36,24 @@ class AuthService {
       refreshToken: tokens.refreshToken,
       _userId: user._id,
     });
-    await sendGridService.sendByType(user.email, EmailTypeEnum.WELCOME, {
-      name: dto.name,
-      frontUrl: config.FRONT_URL,
-      actionToken: "actionToken",
+
+    const actionToken = tokenService.generateActionToken(
+      { userId: user._id, role: user.role },
+      ActionTokenTypeEnum.VERIFY,
+    );
+    await actionTokenRepository.create({
+      tokenType: ActionTokenTypeEnum.VERIFY,
+      actionToken,
+      _userId: user._id,
     });
-    await smsPrepareService.register(user.phone, { name: user.name });
+    await Promise.all([
+      sendGridService.sendByType(user.email, EmailTypeEnum.WELCOME, {
+        name: dto.name,
+        frontUrl: config.FRONT_URL,
+        actionToken,
+      }),
+      smsPrepareService.register(user.phone, { name: user.name }),
+    ]);
     return { user, tokens };
   }
 
@@ -127,6 +139,18 @@ class AuthService {
       tokenType: ActionTokenTypeEnum.FORGOT,
     });
     await tokenRepository.deleteByParams({ _userId: user._id });
+  }
+
+  public async verify(jwtPayload: IJWTPayload): Promise<IUser> {
+    const [user] = await Promise.all([
+      userRepository.updateById(jwtPayload.userId, {
+        isVerified: true,
+      }),
+      actionTokenRepository.deleteByParams({
+        tokenType: ActionTokenTypeEnum.VERIFY,
+      }),
+    ]);
+    return user;
   }
 
   private async isEmailExist(email: string): Promise<void> {

@@ -60,12 +60,16 @@ class TokenService {
         secret = config.JWT_ACTION_FORGOT_TOKEN_SECRET;
         expiresIn = config.JWT_ACTION_FORGOT_EXPIRES_IN;
         break;
+      case ActionTokenTypeEnum.VERIFY:
+        secret = config.JWT_ACTION_VERIFY_TOKEN_SECRET;
+        expiresIn = config.JWT_ACTION_VERIFY_EXPIRES_IN;
+        break;
 
-    default:
+      default:
         throw new ApiError(
-        "Invalid token type",
+          "Invalid token type",
           statusCodes.INTERNAL_SERVER_ERROR,
-      );
+        );
     }
     return jsonwebtoken.sign(payload, secret, { expiresIn });
   }
@@ -83,13 +87,14 @@ class TokenService {
           break;
 
         case ActionTokenTypeEnum.VERIFY:
+          secret = config.JWT_ACTION_VERIFY_TOKEN_SECRET;
           break;
 
         default:
           throw new ApiError(
-          "Invalid token type",
-          statusCodes.INTERNAL_SERVER_ERROR,
-        );
+            "Invalid token type",
+            statusCodes.INTERNAL_SERVER_ERROR,
+          );
       }
 
       return jsonwebtoken.verify(token, secret) as IJWTPayload;
