@@ -4,7 +4,7 @@ import { statusCodes } from "../constants/status-codes.constant";
 import { IForgot, ISetForgot } from "../interfaces/action-token.interface";
 import { IJWTPayload } from "../interfaces/jwt-payload.interface";
 import { IToken } from "../interfaces/token.interface";
-import { IUser } from "../interfaces/user.interface";
+import { IChangePassword, IUser } from "../interfaces/user.interface";
 import { AuthPresenter } from "../presenters/auth.presenter";
 import { UserPresenter } from "../presenters/user.presenter";
 import { authService } from "../services/auth.service";
@@ -77,6 +77,19 @@ class AuthController {
       const response = UserPresenter.toPrivateResponseDto(user);
 
       res.status(statusCodes.CREATED).json(response);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  public async changePassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const jwtPayload = req.res.locals.jwtPayload as IJWTPayload;
+      const body = req.body as IChangePassword;
+
+      await authService.changePassword(jwtPayload, body);
+
+      res.sendStatus(statusCodes.NO_CONTENT);
     } catch (e) {
       next(e);
     }

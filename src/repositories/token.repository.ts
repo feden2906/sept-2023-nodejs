@@ -1,10 +1,10 @@
 import { FilterQuery } from "mongoose";
 
 import { IToken } from "../interfaces/token.interface";
-import { ActionToken } from "../models/action-token.model";
 import { Token } from "../models/token.model";
+import { TokenRepositoryInterface } from "./token.repository.interface";
 
-class TokenRepository {
+class TokenRepository implements TokenRepositoryInterface {
   public async create(dto: IToken): Promise<IToken> {
     return await Token.create(dto);
   }
@@ -13,12 +13,18 @@ class TokenRepository {
     return await Token.findOne(params);
   }
 
+  public async findManyByParams(
+    params: FilterQuery<IToken>,
+  ): Promise<IToken[]> {
+    return await Token.find(params);
+  }
+
   public async deleteById(id: string): Promise<void> {
     await Token.deleteOne({ _id: id });
   }
 
   public async deleteByParams(params: FilterQuery<IToken>): Promise<void> {
-    await ActionToken.deleteMany(params);
+    await Token.deleteMany(params);
   }
 }
 

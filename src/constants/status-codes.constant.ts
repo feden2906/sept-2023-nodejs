@@ -1,5 +1,6 @@
 export const statusCodes = {
   CREATED: 201,
+  NO_CONTENT: 204,
 
   UNAUTHORIZED: 401,
   BAD_REQUEST: 400,

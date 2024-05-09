@@ -7,7 +7,7 @@ import { ApiError } from "../errors/api-error";
 import { IForgot, ISetForgot } from "../interfaces/action-token.interface";
 import { IJWTPayload } from "../interfaces/jwt-payload.interface";
 import { IToken, ITokenResponse } from "../interfaces/token.interface";
-import { IUser } from "../interfaces/user.interface";
+import { IChangePassword, IUser } from "../interfaces/user.interface";
 import { actionTokenRepository } from "../repositories/action-token.repository";
 import { tokenRepository } from "../repositories/token.repository";
 import { userRepository } from "../repositories/user.repository";
@@ -151,6 +151,23 @@ class AuthService {
       }),
     ]);
     return user;
+  }
+
+  public async changePassword(
+    jwtPayload: IJWTPayload,
+    dto: IChangePassword,
+  ): Promise<void> {
+    const user = await userRepository.getById(jwtPayload.userId);
+    const isCompare = await passwordService.comparePassword(
+      dto.oldPassword,
+      user.password,
+    );
+    if (!isCompare) {
+      throw new ApiError("Wrong old password", statusCodes.UNAUTHORIZED);
+    }
+    const hashedPassword = await passwordService.hashPassword(dto.newPassword);
+    await userRepository.updateById(user._id, { password: hashedPassword });
+    await tokenRepository.deleteByParams({ _userId: user._id });
   }
 
   private async isEmailExist(email: string): Promise<void> {
