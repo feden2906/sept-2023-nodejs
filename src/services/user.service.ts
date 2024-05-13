@@ -1,6 +1,10 @@
+import { UploadedFile } from "express-fileupload";
+
+import { FileItemTypeEnum } from "../enums/file-item-type.enum";
 import { ApiError } from "../errors/api-error";
 import { IUser } from "../interfaces/user.interface";
 import { userRepository } from "../repositories/user.repository";
+import { s3Service } from "./s3.service";
 import { smsPrepareService } from "./sms-prepare.service";
 
 class UserService {
@@ -26,6 +30,22 @@ class UserService {
     await userRepository.updateById(userId, { isDeleted: true });
 
     await smsPrepareService.deleteAccount(user.phone, { name: user.name });
+  }
+
+  public async uploadAvatar(
+    userId: string,
+    avatar: UploadedFile,
+  ): Promise<IUser> {
+    const user = await this.findUserOrThrow(userId);
+    const filePath = await s3Service.uploadFile(
+      avatar,
+      FileItemTypeEnum.USER,
+      user._id,
+    );
+    if (user.avatar) {
+      // TODO: delete old avatar
+    }
+    return await userRepository.updateById(userId, { avatar: filePath });
   }
 
   private async findUserOrThrow(userId: string): Promise<IUser> {
