@@ -43,9 +43,17 @@ class UserService {
       user._id,
     );
     if (user.avatar) {
-      // TODO: delete old avatar
+      await s3Service.deleteFile(user.avatar);
     }
     return await userRepository.updateById(userId, { avatar: filePath });
+  }
+
+  public async deleteAvatar(userId: string): Promise<IUser> {
+    const user = await this.findUserOrThrow(userId);
+    if (user.avatar) {
+      await s3Service.deleteFile(user.avatar);
+    }
+    return await userRepository.updateById(userId, { avatar: null });
   }
 
   private async findUserOrThrow(userId: string): Promise<IUser> {
