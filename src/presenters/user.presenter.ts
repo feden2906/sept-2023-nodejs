@@ -1,5 +1,11 @@
 import { config } from "../configs/config";
-import { IPrivateUser, IPublicUser, IUser } from "../interfaces/user.interface";
+import {
+  IPrivateUser,
+  IPublicUser,
+  IUser,
+  IUserListQuery,
+  IUserListResponse,
+} from "../interfaces/user.interface";
 
 export class UserPresenter {
   public static toPublicResponseDto(user: IUser): IPublicUser {
@@ -14,8 +20,16 @@ export class UserPresenter {
       isVerified: user.isVerified,
     };
   }
-  public static toPublicResponseListDto(users: IUser[]): IPublicUser[] {
-    return users.map(UserPresenter.toPublicResponseDto);
+  public static toPublicResponseListDto(
+    users: IUser[],
+    query: IUserListQuery,
+    total: number,
+  ): IUserListResponse {
+    return {
+      data: users.map(UserPresenter.toPublicResponseDto),
+      ...query,
+      total,
+    };
   }
 
   public static toPrivateResponseDto(user: IUser): IPrivateUser {

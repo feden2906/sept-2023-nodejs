@@ -2,14 +2,14 @@ import { UploadedFile } from "express-fileupload";
 
 import { FileItemTypeEnum } from "../enums/file-item-type.enum";
 import { ApiError } from "../errors/api-error";
-import { IUser } from "../interfaces/user.interface";
+import { IUser, IUserListQuery } from "../interfaces/user.interface";
 import { userRepository } from "../repositories/user.repository";
 import { s3Service } from "./s3.service";
 import { smsPrepareService } from "./sms-prepare.service";
 
 class UserService {
-  public async getList(): Promise<IUser[]> {
-    return await userRepository.getList();
+  public async getList(query: IUserListQuery): Promise<[IUser[], number]> {
+    return await userRepository.getList(query);
   }
 
   public async getById(userId: string): Promise<IUser> {
