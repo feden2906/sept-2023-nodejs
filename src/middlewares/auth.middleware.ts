@@ -69,6 +69,7 @@ class AuthMiddleware {
         if (!actionToken) {
           throw new ApiError("No token provided", statusCodes.BAD_REQUEST);
         }
+
         const payload = tokenService.checkActionToken(actionToken, type);
 
         const entity = await actionTokenRepository.findByParams({
