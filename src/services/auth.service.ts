@@ -1,6 +1,7 @@
 import { config } from "../configs/config";
 import { errorMessages } from "../constants/error-messages.constant";
 import { statusCodes } from "../constants/status-codes.constant";
+import { MeasureExecutionTime } from "../decorators/measure-time.decorator";
 import { ActionTokenTypeEnum } from "../enums/action-token-type.enum";
 import { EmailTypeEnum } from "../enums/email-type.enum";
 import { ApiError } from "../errors/api-error";
@@ -57,6 +58,7 @@ class AuthService {
     return { user, tokens };
   }
 
+  @MeasureExecutionTime
   public async signIn(dto: {
     email: string;
     password: string;
